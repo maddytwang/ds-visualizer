@@ -8,7 +8,7 @@ A retro-styled data structures visualizer with modern capabilities for LeetCode 
 
 Download and install Node.js (npm is included) from https://nodejs.org — grab the LTS version.
 
-Verify it worked:
+Verify:
 
 ```bash
 node --version
@@ -18,7 +18,7 @@ npm --version
 ### 2. Clone the repo and install dependencies
 
 ```bash
-git clone https://github.com/your-username/ds-visualizer.git
+git clone https://github.com/maddytwang/ds-visualizer.git
 cd ds-visualizer
 npm install
 ```
@@ -47,6 +47,6 @@ npm run dev
 
 Then open http://localhost:xxxx in your browser.
 
-## Why not just use Claude?
+## Why not just use Claude or ChatGPT or whatever other AI exists?
 
-This looks cooler that's all.
+This looks cooler that's all. You could also draw your own diagrams if you wanted. Up to you though.
