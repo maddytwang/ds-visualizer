@@ -19,13 +19,13 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  padding: 20px;
+  padding: 12px;
 }
 
 /* Main window */
 .main-window {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1440px;
   display: flex;
   flex-direction: column;
 }
@@ -114,9 +114,54 @@ body {
   display: block;
 }
 
+/* code-input overrides text-input height — editor wrapper controls it */
+.code-editor .code-input {
+  height: 100% !important;
+}
+
+/* Code editor with line numbers */
+.code-editor {
+  display: flex;
+  height: 160px;
+  overflow: hidden;
+}
+
+.code-gutter {
+  background: #e4e4e4;
+  border-right: 1px solid #b0b0b0;
+  color: #888;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: hidden;
+  padding: 6px 6px 6px 4px;
+  text-align: right;
+  user-select: none;
+  min-width: 25px;
+  flex-shrink: 0;
+}
+
+.line-number {
+  height: 18px;
+}
+
 .code-input {
   font-family: 'MS Sans Serif', Tahoma, sans-serif;
   font-size: 12px;
+  line-height: 1.5;
+  flex: 1;
+  height: 100% !important;
+  resize: none;
+}
+
+/* Format error state */
+.format-error {
+  color: #aa0000;
+  font-size: 10px;
+}
+
+.format-error-border {
+  border-color: #aa0000 #ffaaaa #ffaaaa #aa0000 !important;
 }
 
 /* Visualization panel */
@@ -129,7 +174,7 @@ body {
 .submit-row {
   display: flex;
   justify-content: center;
-  padding: 8px 0 4px;
+  padding: 20px 0 8px;
   flex-shrink: 0;
 }
 
