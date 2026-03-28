@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "98.css": "^0.1.21",
     "prettier": "^3.8.1",
     "react": "^18.3.1",

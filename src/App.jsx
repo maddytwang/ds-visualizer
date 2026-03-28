@@ -5,6 +5,8 @@ import * as estreePlugin from "prettier/plugins/estree";
 import "98.css";
 import "./App.css";
 import CodeEditor from "./CodeEditor";
+import DrawingCanvas from "./DrawingCanvas";
+import { inferStructure } from "./inferStructure";
 
 function isPython(raw) {
   return /^\s*(def |class |import |from |elif |except |with |async def )/m.test(raw)
@@ -46,6 +48,9 @@ export default function App() {
   const [problem, setProblem] = useState("");
   const [code, setCode] = useState("");
   const [formatError, setFormatError] = useState(false);
+  const [inferredStructure, setInferredStructure] = useState(null);
+  const [inferError, setInferError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleCodeBlur = async () => {
     if (!code.trim()) return;
@@ -62,8 +67,21 @@ export default function App() {
     setCode(formatted);
   };
 
-  const handleSubmit = () => {
-    // visualization logic will go here
+  const handleSubmit = async () => {
+    if (!problem.trim()) return
+    setLoading(true)
+    setInferError(null)
+    setInferredStructure(null)
+
+    try {
+      const { structure, error } = await inferStructure(problem)
+      if (error) setInferError(error)
+      else setInferredStructure(structure)
+    } catch (e) {
+      setInferError(`API error: ${e.message}`)
+    } finally {
+      setLoading(false)
+    }
   };
 
   return (
@@ -128,13 +146,24 @@ export default function App() {
 
             {/* Submit */}
             <div className="submit-row">
-              <button onClick={handleSubmit}>Visualize</button>
+              <button onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Analyzing...' : 'Visualize'}
+              </button>
             </div>
 
             {/* Bottom: visualization */}
             <div className="panel">
-              <div className="panel-label">Visualization</div>
-              <div className="sunken-panel viz-box" />
+              <div className="panel-label">
+                Visualization
+                {inferredStructure && (
+                  <span className="inferred-label"> — {inferredStructure}</span>
+                )}
+              </div>
+              <div className="sunken-panel viz-box">
+                <DrawingCanvas
+                  message={inferError ? inferError : inferredStructure ?? null}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -142,7 +171,7 @@ export default function App() {
         {/* Status bar */}
         <div className="status-bar">
           <p className="status-bar-field">
-            {formatError ? "Could not format — check syntax" : "Ready"}
+            {loading ? 'Analyzing problem...' : inferError ? 'Unsupported structure' : inferredStructure ? `Detected: ${inferredStructure}` : formatError ? 'Could not format — check syntax' : 'Ready'}
           </p>
           <p className="status-bar-field">
             For Help, click Help on the menu bar

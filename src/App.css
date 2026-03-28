@@ -154,6 +154,22 @@ body {
   resize: none;
 }
 
+/* Inferred structure label */
+.inferred-label {
+  color: #000080;
+  font-weight: bold;
+}
+
+/* Viz panel messages */
+.viz-message {
+  padding: 8px;
+  font-size: 11px;
+}
+
+.viz-message.error {
+  color: #aa0000;
+}
+
 /* Format error state */
 .format-error {
   color: #aa0000;
@@ -167,7 +183,156 @@ body {
 /* Visualization panel */
 .viz-box {
   min-height: 260px;
+  background: #c0c0c0;
+  display: flex;
+}
+
+/* Drawing canvas layout */
+.drawing-canvas-wrap {
+  display: flex;
+  flex: 1;
+  min-height: 260px;
+}
+
+.draw-toolbar {
+  background: #c0c0c0;
+  border-right: 2px solid #808080;
+  box-shadow: inset -1px 0 0 #fff;
+  padding: 4px 3px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.draw-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.draw-tool-btn {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #c0c0c0;
+  border: 2px solid transparent;
+  cursor: default;
+}
+
+.draw-tool-btn:hover {
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-bottom-color: #808080;
+  border-right-color: #808080;
+}
+
+.draw-tool-btn.active {
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+  background: #b8b8b8;
+}
+
+.clear-btn {
+  margin-top: auto;
+  width: 100%;
+  font-size: 10px;
+  padding: 3px 0;
+  cursor: default;
+}
+
+.draw-right {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.canvas-area {
+  flex: 1;
+  position: relative;
   background: #fff;
+  overflow: hidden;
+}
+
+.draw-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-text-input {
+  position: absolute;
+  background: transparent;
+  border: 1px dashed #000;
+  outline: none;
+  font-size: 14px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  color: inherit;
+  min-width: 80px;
+  padding: 0 2px;
+}
+
+/* Color palette */
+.draw-palette {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #c0c0c0;
+  border-top: 2px solid #808080;
+  box-shadow: inset 0 1px 0 #fff;
+  padding: 4px 6px;
+  flex-shrink: 0;
+}
+
+.color-preview {
+  position: relative;
+  width: 30px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.color-swatch {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+}
+
+.color-swatch.secondary {
+  bottom: 0;
+  right: 0;
+}
+
+.color-swatch.primary {
+  top: 0;
+  left: 0;
+  border: 2px solid #000;
+}
+
+.palette-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+
+.palette-swatch {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid #808080;
+  cursor: default;
+  flex-shrink: 0;
+}
+
+.palette-swatch:hover {
+  border-color: #000;
+  transform: scale(1.2);
 }
 
 /* Submit row */
