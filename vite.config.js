@@ -1,6 +1,14 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const apiKey = env.VITE_ANTHROPIC_API_KEY ?? env.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY
+
+  return {
+    plugins: [react()],
+    define: {
+      'import.meta.env.VITE_ANTHROPIC_API_KEY': JSON.stringify(apiKey),
+    },
+  }
 })

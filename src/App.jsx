@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as prettier from "prettier/standalone";
 import * as babelPlugin from "prettier/plugins/babel";
 import * as estreePlugin from "prettier/plugins/estree";
@@ -6,7 +6,10 @@ import "98.css";
 import "./App.css";
 import CodeEditor from "./CodeEditor";
 import DrawingCanvas from "./DrawingCanvas";
+import ArrayVisualizer from "./ArrayVisualizer";
+import LinkedListVisualizer from "./LinkedListVisualizer";
 import { inferStructure } from "./inferStructure";
+import { buildVisualization } from "./buildVisualization";
 
 function isPython(raw) {
   return /^\s*(def |class |import |from |elif |except |with |async def )/m.test(raw)
@@ -51,6 +54,21 @@ export default function App() {
   const [inferredStructure, setInferredStructure] = useState(null);
   const [inferError, setInferError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState('');
+  const [vizData, setVizData] = useState(null);
+  const [step, setStep] = useState(0);
+  const [testCase, setTestCase] = useState('');
+
+  useEffect(() => {
+    if (!vizData) return
+    const onKey = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      if (e.key === 'ArrowLeft') setStep(s => Math.max(0, s - 1))
+      if (e.key === 'ArrowRight') setStep(s => Math.min(vizData.steps.length - 1, s + 1))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [vizData]);
 
   const handleCodeBlur = async () => {
     if (!code.trim()) return;
@@ -68,19 +86,29 @@ export default function App() {
   };
 
   const handleSubmit = async () => {
-    if (!problem.trim()) return
+    if (!problem.trim()) { setInferError('Please add a problem statement.'); return }
     setLoading(true)
+    setLoadingPhase('Analyzing...')
     setInferError(null)
     setInferredStructure(null)
+    setVizData(null)
+    setStep(0)
 
     try {
-      const { structure, error } = await inferStructure(problem)
-      if (error) setInferError(error)
-      else setInferredStructure(structure)
+      const { structure, error } = await inferStructure(problem, code)
+      if (error) { setInferError(error); return }
+      setInferredStructure(structure)
+
+      if (code.trim() && testCase.trim() && (structure === 'array' || structure === 'linked list')) {
+        const data = buildVisualization(code, testCase, structure)
+        if (data) setVizData(data)
+        else setInferError('Could not parse test case.')
+      }
     } catch (e) {
       setInferError(`API error: ${e.message}`)
     } finally {
       setLoading(false)
+      setLoadingPhase('')
     }
   };
 
@@ -139,16 +167,28 @@ export default function App() {
                     onBlur={handleCodeBlur}
                     onPaste={handleCodePaste}
                     placeholder="Paste your code here..."
+                    highlightLine={vizData ? vizData.steps[step]?.line : null}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Submit */}
+            {/* Submit + test case */}
             <div className="submit-row">
               <button onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Analyzing...' : 'Visualize'}
+                {loading ? loadingPhase : 'Visualize'}
               </button>
+              <div className="test-case-row">
+                <label className="test-case-label">Test case</label>
+                <input
+                  className="test-case-input"
+                  value={testCase}
+                  onChange={e => setTestCase(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+                  placeholder={inferredStructure === 'linked list' ? '1->2->3->4->5' : '[2, 7, 11, 15]'}
+                  spellCheck={false}
+                />
+              </div>
             </div>
 
             {/* Bottom: visualization */}
@@ -160,10 +200,40 @@ export default function App() {
                 )}
               </div>
               <div className="sunken-panel viz-box">
-                <DrawingCanvas
-                  message={inferError ? inferError : inferredStructure ?? null}
-                />
+                {vizData ? (
+                  <div className="viz-layer-stack">
+                    {inferredStructure === 'linked list'
+                      ? <LinkedListVisualizer vizData={vizData} step={step} />
+                      : <ArrayVisualizer vizData={vizData} step={step} />
+                    }
+                    <DrawingCanvas overlay />
+                  </div>
+                ) : (
+                  <DrawingCanvas
+                    message={inferError ? inferError : inferredStructure ?? null}
+                  />
+                )}
               </div>
+              {vizData && (
+                <div className="viz-nav-bar">
+                  <span className="viz-description">
+                    {vizData.steps[step]?.description}
+                  </span>
+                  <div className="viz-nav">
+                    <button
+                      className="viz-nav-btn"
+                      disabled={step === 0}
+                      onClick={() => setStep(s => Math.max(0, s - 1))}
+                    >◀</button>
+                    <span className="viz-step-count">Step {step + 1} / {vizData.steps.length}</span>
+                    <button
+                      className="viz-nav-btn"
+                      disabled={step === vizData.steps.length - 1}
+                      onClick={() => setStep(s => Math.min(vizData.steps.length - 1, s + 1))}
+                    >▶</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -171,7 +241,7 @@ export default function App() {
         {/* Status bar */}
         <div className="status-bar">
           <p className="status-bar-field">
-            {loading ? 'Analyzing problem...' : inferError ? 'Unsupported structure' : inferredStructure ? `Detected: ${inferredStructure}` : formatError ? 'Could not format — check syntax' : 'Ready'}
+            {loading ? loadingPhase : inferError ? 'Unsupported structure' : vizData ? `${vizData.steps.length} steps` : inferredStructure ? `Detected: ${inferredStructure}` : formatError ? 'Could not format — check syntax' : 'Ready'}
           </p>
           <p className="status-bar-field">
             For Help, click Help on the menu bar

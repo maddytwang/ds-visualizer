@@ -45,7 +45,7 @@ export VITE_ANTHROPIC_API_KEY=sk-your-key-here
 npm run dev
 ```
 
-Then open http://localhost:xxxx in your browser.
+Then open http://localhost:xxxx in your browser. Visualize DSAs to your heart's desires. (Or not since I only have arrays and linked lists implemented so far ...)
 
 ## Why not just use Claude or ChatGPT or whatever other AI exists?
 
